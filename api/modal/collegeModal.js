@@ -32,6 +32,10 @@ const collegeSchema = mongoose.Schema(
       type: String,
       Required: true,
     },
+    CreatedBy: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

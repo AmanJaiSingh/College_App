@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import Header from "../BoilerPlates/Header";
-import { publicRequest } from "../Request/Request";
+import { publicRequest, userRequest } from "../Request/Request";
 
 const Create = () => {
   const [de, setDe] = useState("");
@@ -22,8 +22,7 @@ const Create = () => {
     e.preventDefault();
     const sendData = async () => {
       try {
-        const res = await publicRequest.post("/college", Data);
-        console.log(res.err);
+        const res = await userRequest.post("/college", Data);
         setRespose(res.data.Clg_id);
       } catch (err) {
         console.log(err);

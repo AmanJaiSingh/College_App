@@ -1,14 +1,20 @@
 import express from "express";
-import collegeModal from "./modal/collegeModal.js";
+import collegeModal from "../modal/collegeModal.js";
+import {
+  verifyToken,
+  verifyTokenAndAuthorization,
+  verifyTokenAndAdmin,
+  verifyTokenAndUser,
+} from "../auth/auth.js";
+import userModel from "../modal/userModel.js";
 
 const Router = express.Router();
 // Router.use(express.static("public"));
 
-Router.use(express.json());
-Router.use(express.urlencoded({ extended: true }));
 // it its for /Colleges
 
-Router.get("/colleges", async (req, res) => {
+//get
+Router.get("/colleges", verifyToken, async (req, res) => {
   try {
     let newData = await collegeModal.find();
     if (newData.length === 0) {
@@ -19,6 +25,25 @@ Router.get("/colleges", async (req, res) => {
     res.status(505).json(err);
   }
 });
+
+//get clg data by user id
+
+Router.get(
+  "/user/college/:id",
+  verifyTokenAndAuthorization,
+  async (req, res) => {
+    try {
+      let newData = await collegeModal.find({ CreatedBy: req.params.id });
+      if (newData) {
+        res.status(200).json(newData);
+      } else {
+        res.status("500").json({ message: "Data not found" });
+      }
+    } catch (err) {
+      res.status(505).json(err);
+    }
+  }
+);
 
 //------------------------------------------------
 
@@ -31,7 +56,7 @@ Router.get("/colleges", async (req, res) => {
 // })
 
 //get user data
-Router.get("/college/:id", async (req, res) => {
+Router.get("/college/:id", verifyToken, async (req, res) => {
   // console.log(typeof req.params.id);
   try {
     let newData = await collegeModal.findOne({
@@ -49,8 +74,9 @@ Router.get("/college/:id", async (req, res) => {
 });
 
 //send user data
-Router.post("/college", async (req, res) => {
+Router.post("/college", verifyToken, async (req, res) => {
   try {
+    console.log(req.user);
     let MaxData = await collegeModal.find().sort({ Clg_id: -1 }).limit(1);
     // console.log(MaxData.length);
     var j = -1;
@@ -62,11 +88,23 @@ Router.post("/college", async (req, res) => {
       j = MaxData[0].Clg_id;
     }
     // console.log(req.body);
-    const newData = new collegeModal({ Clg_id: j + 1, ...req.body });
+    const newData = new collegeModal({
+      CreatedBy: req.user.id,
+      Clg_id: j + 1,
+      ...req.body,
+    });
+    const user = await userModel.updateOne(
+      { _id: req.user.id },
+      { $push: { CreatedClg: j + 1 } }
+    );
+
     console.log(newData);
     try {
       const saveData = await newData.save();
-      res.status(200).json(saveData);
+
+      // console.log(up);
+
+      res.status(200).json({ saveData, user });
     } catch (error) {
       res.status(400).json({ message: "data cant be saved", error });
     }
@@ -80,10 +118,10 @@ Router.post("/college", async (req, res) => {
 });
 
 // Delete
-Router.delete("/college/:id", async (req, res) => {
+Router.delete("/college/:id", verifyTokenAndUser, async (req, res) => {
   try {
     const a = await collegeModal.deleteOne({ Clg_id: req.params.id });
-    // console.log(a);
+    console.log(req.user);
     if (a.deletedCount) {
       res
         .status(200)

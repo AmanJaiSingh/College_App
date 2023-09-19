@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../BoilerPlates/Header";
 import axios from "axios";
 import CollegeCard from "../BoilerPlates/CollegeCard";
-import { publicRequest } from "../Request/Request";
+import { publicRequest, userRequest } from "../Request/Request";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -20,11 +20,11 @@ const Home = () => {
     setload(true);
     const getData = async () => {
       try {
-        const res = await publicRequest.get("/colleges");
+        const res = await userRequest.get("/colleges");
         setData(res.data);
       } catch (err) {
         setData({});
-        console.log(err);
+        console.log("here", err);
       }
     };
     getData();

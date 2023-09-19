@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Header from "../BoilerPlates/Header";
 import { Link, useLocation } from "react-router-dom";
-import { publicRequest } from "../Request/Request";
+import { publicRequest, userRequest } from "../Request/Request";
 import { useState } from "react";
 
 const Update = () => {
@@ -28,7 +28,7 @@ const Update = () => {
     const getData = async () => {
       try {
         setLoad(true);
-        const res = await publicRequest.get("/college/" + id);
+        const res = await userRequest.get("/college/" + id);
         setData(res.data.newData);
         console.log(res.data.newData);
         // setDep(res.data.newData.departments);

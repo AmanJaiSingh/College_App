@@ -1,13 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { publicRequest } from "../Request/Request";
+import { publicRequest, userRequest } from "../Request/Request";
+import { useDispatch, useSelector } from "react-redux";
 
 const CollegeCard = ({ item, handleClick1 }) => {
+  const user = useSelector((state) => state.user.currentUser);
   const handleClick = (e) => {
     // e.preventDefault();
     const DeleteData = async () => {
       try {
-        const a = await publicRequest.delete(`/college/${item.Clg_id}`);
+        const a = await userRequest.delete(`/college/${item.Clg_id}`);
         console.log(a);
       } catch (err) {
         console.log(err);
@@ -42,19 +44,23 @@ const CollegeCard = ({ item, handleClick1 }) => {
           Total Students: {item.totalstudents}
         </div>
       </div>
-      <div className="flex flex-col justify-evenly ml-52">
-        <Link to={`/update/${item.Clg_id}`}>
-          <button className="bg-orange-500 hover:border-orange-400 hover:border-2 text-lg text-white hover:text-orange-500 duration-200 hover:bg-white rounded-md h-10 w-44">
-            Update
+      {user.isAdmin ? (
+        <div className="flex flex-col justify-evenly ml-52">
+          <Link to={`/update/${item.Clg_id}`}>
+            <button className="bg-orange-500 hover:border-orange-400 hover:border-2 text-lg text-white hover:text-orange-500 duration-200 hover:bg-white rounded-md h-10 w-44">
+              Update
+            </button>
+          </Link>
+          <button
+            className="bg-red-500 rounded-md h-10 hover:bg-white border-2 border-red-500 duration-200 text-white hover:text-red-500 text-lg w-44"
+            onClick={handleClick}
+          >
+            Delete
           </button>
-        </Link>
-        <button
-          className="bg-red-500 rounded-md h-10 hover:bg-white border-2 border-red-500 duration-200 text-white hover:text-red-500 text-lg w-44"
-          onClick={handleClick}
-        >
-          Delete
-        </button>
-      </div>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
